@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+    <input autocomplete="off" autofocus, placeholder="Query" type="search">
+
+    <ul></ul>
+
+    <script>
+
+        let input = document.querySelector('input'); // query select input html tag
+        input.addEventListener('input', async function() {   // listen for human input in text box
+            let response = await fetch('/search?q=' + input.value); // http request form js to server asking for search somethong of whatever human types in
+            let shows = await response.json(); // wait for server to respond
+            let html = '';
+            for (let show of shows) {
+                html += '<li>' + show.title + '</li>';
+            }
+            document.querySelector('ul').innerHTML
+        });
+        
+    </script>
+
+{% endblock %}

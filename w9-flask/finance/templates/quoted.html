@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Look up stock symbol
+{% endblock %}
+
+{% block main %}
+
+    <form action="/quote" method="post">
+        <div class="mb-3">
+            <label type="text"><b>Name</b>: {{ stock.name }}</label><br>
+            <label type="text"><b>Price</b>: {{ stock.price|usd }}</label><br>
+            <label type="text"><b>Symbol</b>: {{ stock.symbol }}</label><br>
+        </div>
+    </form>
+{% endblock %}

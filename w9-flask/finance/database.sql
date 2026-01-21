@@ -1,0 +1,27 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    username TEXT NOT NULL,
+    hash TEXT NOT NULL,
+    cash NUMERIC NOT NULL DEFAULT 10000.00
+);
+
+CREATE TABLE IF NOT EXISTS transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    user_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    transaction_type TEXT NOT NULL CHECK(transaction_type in ('buy', 'sell', 'deposit', 'withdrawl')),
+    symbol TEXT NOT NULL,
+    price DECIMAL(15, 2) NOT NULL,
+    shares INTEGER NOT NULL,
+    total DECIMAL(15, 2) NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS account (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    user_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    symbol TEXT NOT NULL,
+    shares INTEGER NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);

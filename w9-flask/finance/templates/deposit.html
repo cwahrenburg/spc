@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Deposit cash into user account
+{% endblock %}
+
+{% block main %}
+    <h1>Deposit cash</h1>
+    <br>
+    <form action="/deposit" method="post">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="amount" placeholder="Enter deposit amount" type="number">
+        </div>
+        <button class="btn btn-outline-primary" type="submit">Deposit</button>
+    </form>
+    <br>
+    <b>Current cash balance</b>: {{ oldCashBalance }}
+
+
+
+{% endblock %}
