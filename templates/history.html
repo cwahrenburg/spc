@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Account buy/sell history
+{% endblock %}
+
+{% block main %}
+    <h1>Summary of transactions</h1>
+    <br>
+    <form action="/history" method="post">
+        <div class="mb-3">
+            <table class="table">
+                <tr>
+                    <th>Date</th>
+                    <th>Buy/Sell</th>
+                    <th>Stock</th>
+                    <th>Price</th>
+                    <th>Share Count</th>
+                    <th>Transaction Amount</th>
+                    {% for record in history %}
+                        <tr>
+                            <td>{{ record["created_at"] }}</td>
+                            <td>{{ record["transaction_type"] }}</td>
+                            <td>{{ record["symbol"] }}</td>
+                            <td>{{ record["price"] }}</td>
+                            <td>{{ record["shares"] }}</td>
+                            <td>{{ record["total"]|usd }}</td>
+                        </tr>
+                    {% endfor %}
+
+                </table>
+
+
+            </div>
+        </form>
+{% endblock %}

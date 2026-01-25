@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Account summary
+{% endblock %}
+
+{% block main %}
+    <h1>Summary of holdings</h1>
+    <br>
+    <form action="/" method="post">
+        <div class="mb-3">
+            <table class="table">
+                <tr>
+                    <th>Symbol</th>
+                    <th>Shares</th>
+                    <th>Current Price</th>
+                    <th>Value</th>
+                    {% for stock in portfolio %}
+                        <tr>
+                            <td>{{ stock["symbol"] }}</td>
+                            <td>{{ stock["shares"] }}</td>
+                            <td>{{ stock["price"]|usd }}</td>
+                            <td>{{ stock["value"]|usd }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td><b>Value of Holdings</b></td>
+                        <td>{{ valueOfStocks|usd }}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td><b>Cash Avaialable</b></td>
+                        <td>{{ cashAvail|usd }}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td><b>Total Account Balance</b></td>
+                        <td>{{ totalAccountBalance|usd }}</td>
+                    </tr>
+                </table>
+
+
+            </div>
+        </form>
+{% endblock %}
+
+<table>
+    <tr>
+        <th>Company</th>
+        <th>Contact</th>
+        <th>Country</th>
+    </tr>
+    <tr>
+        <td>Alfreds Futterkiste</td>
+        <td>Maria Anders</td>
+        <td>Germany</td>
+    </tr>
+    <tr>
+        <td>Centro comercial Moctezuma</td>
+        <td>Francisco Chang</td>
+        <td>Mexico</td>
+    </tr>
+</table>
