@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dashboard view
+{% endblock %}
+
+{% block main %}
+
+<h3>Graph</h3>
+
+{% for htmlFig in htmlFigList %}
+
+    {{ htmlFig|safe }}
+    
+{% endfor %}
+
+{% endblock %}

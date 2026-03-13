@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     created DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS measurement (
+CREATE TABLE IF NOT EXISTS measurements (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     user_id INTEGER NOT NULL,
     created DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS measurement (
     feature_id INTEGER,
     machine,
     value,
+    lsl, 
+    usl,
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(feature_id) REFERENCES features(id)
 );
@@ -22,7 +24,9 @@ CREATE TABLE IF NOT EXISTS features (
     "name" NOT NULL,
     created DATETIME DEFAULT CURRENT_TIMESTAMP,
     units,
-    product_id NOT NULL,
+    lsl, 
+    usl,
+    product_id,
     FOREIGN KEY(product_id) REFERENCES product(id)
 );
 
