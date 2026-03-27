@@ -5,14 +5,12 @@ from helpers import apology, login_required, cs50_query_to_df
 from spc import SPC
 
 import plotly.io as pio
-
-# Plottong Functions to pass to html page
-from charts import test_chart
+import pandas as pd
 
 # Import Database
 from config import DB
+from config import qryMeasurementSQL, insertNoteSQL
 
-# CS50 Helper Functions
 
 # Configure application
 app = Flask(__name__)
@@ -77,29 +75,76 @@ def login():
         return render_template("login.html")
 
 # TODO 
-@app.route("/features")
-def features():
+@app.route("/controlchart")
+def controlCharts():
     """Generate charts for all features in database"""
     
-    # Select all measurements
-    qry = f"SELECT * FROM measurements"
+    df = cs50_query_to_df(DB=DB, qry=qryMeasurementSQL)
 
-    df = cs50_query_to_df(DB=DB, qry=qry)
-    print(df["feature_id"].unique())
+    df["feature_id"] = df["feature_id"].fillna(0).astype(int)
 
     htmlFigList= []
+    
     for featureID in df["feature_id"].unique(): 
-        chart = SPC(df.query("feature_id == @featureID"), valueColumn="value").control_chart()
-        htmlFig = pio.to_html(chart)
-        htmlFigList.append(htmlFig)
+        try: 
+            chart = SPC(df.query("feature_id == @featureID").reset_index(drop=True), valueColumn="value").control_chart()
+            htmlFig = pio.to_html(chart)
+            htmlFigList.append(htmlFig)
+        except: 
+            pass
 
-    return render_template("features.html", htmlFigList=htmlFigList)
+    return render_template("controlchart.html", htmlFigList=htmlFigList)
 
-@app.route("/control-charts")
-def control_charts():
-    pass
+@app.route("/metrics")
+def metrics():
+    """Generate summary table of all metrics"""
+    
+    df = cs50_query_to_df(qry = qryMeasurementSQL, DB=DB)
+
+    L = [] 
+    for featureID in df["feature_id"].unique():
+        try:     
+            spc = SPC(df.query("feature_id == @featureID").copy(), valueColumn="value", uslCol="usl", lslCol="lsl")
+            L.append(spc.metrics)
+        except: 
+            pass
+
+    metrics = pd.concat(L).reset_index(drop=True)
+
+    htmlMetrics = metrics.to_html(classes = "table table-striped table-responsive")
+
+    return render_template("metrics.html", htmlMetrics=htmlMetrics) 
+
+@app.route("/engineering", methods = ["GET", "POST"])
+def engineering(): 
+    """Control charts with additional abilities to update underlying data"""
 
 
+    df = cs50_query_to_df(DB=DB, qry=qryMeasurementSQL)
+
+    df["feature_id"] = df["feature_id"].fillna(0).astype(int)
+
+    htmlFigList= []
+    
+    for featureID in df["feature_id"].unique(): 
+        try: 
+            chart = SPC(df.query("feature_id == @featureID").reset_index(drop=True), valueColumn="value").control_chart()
+            htmlFig = pio.to_html(chart)
+            htmlFigList.append(htmlFig)
+        except: 
+            pass
+
+    if request.method == "GET": 
+        return render_template("engineering.html", htmlFigList=htmlFigList)
+    else: 
+        measurementID = request.form.get("measurementID")
+        noteText = request.form.get("noteText")
+        DB.execute(insertNoteSQL, measurementID, noteText)
+        return redirect("/engineering")
+
+
+    
+    return apology("TODO")
 
 # DONE
 @app.route("/register", methods=["GET", "POST"])

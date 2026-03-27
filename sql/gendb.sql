@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS features (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "name" NOT NULL,
     created DATETIME DEFAULT CURRENT_TIMESTAMP,
+    machine TEXT,
     units,
     lsl, 
     usl,
@@ -35,3 +36,10 @@ CREATE TABLE IF NOT EXISTS product (
     "name" NOT NULL,
     created DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE if NOT EXISTS notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    measurement_id,
+    note_text TEXT,
+    FOREIGN KEY(measurement_id) REFERENCES measurements(id)
+)

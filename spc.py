@@ -9,6 +9,12 @@ class SPC:
     """Class to define control chart rules and basic statistics"""
     data: pd.DataFrame
     valueColumn: str
+    databaseIDCol:str = "measurement_id"
+    featureNameCol = "feature"
+    machineNameCol = "machine"
+    featureIDColName = "feature_id"
+    lslCol: str = None
+    uslCol: str = None
     rule2Threshold: int = 9
     rule3Threshold: int = 6
     rule4Threshold: int = 14
@@ -21,8 +27,15 @@ class SPC:
         # Calculate basic statistics
         self._calc_mean()
         self._calc_sigma()
+        self._calc_spec_limits()
         self._calc_control_limits()
         self._calc_zones()
+
+        # Calc Performance 
+        self._calc_spec_limits
+        self._calc_yield()
+        self._calc_ppk()
+        self._calc_all_metrics()
 
         # Control chart rules:
         self._rule1()
@@ -39,10 +52,43 @@ class SPC:
     def _calc_sigma(self): 
         self.sigma = self.values["value"].std()
 
+    def _calc_spec_limits(self): 
+        self.usl = self.data["usl"].iloc[0]
+        self.lsl = self.data["lsl"].iloc[0]
+
+    def _calc_yield(self): 
+        df = self.data
+
+        df["in_spec"] = df[self.valueColumn].apply(lambda x: True if self.lsl < x < self.usl else False)
+        self.fpy = df["in_spec"].sum() / df["in_spec"].count()
+
+        self.data = df
+
+    def _calc_ppk(self): 
+        self.pp_upper = (self.usl - self.mean) / (3 * self.sigma)
+        self.pp_lower = (self.mean - self.lsl) / (3 * self.sigma)
+        self.ppk = min(self.pp_upper, self.pp_lower)
+
     def _calc_control_limits(self):
         self.ucl = self.mean + 3 * self.sigma
         self.lcl = self.mean - 3 * self.sigma
 
+    def _calc_all_metrics(self):
+        data = {
+            "feature_id": self.data[self.featureIDColName].iloc[0],
+            "Machine": self.data[self.machineNameCol].iloc[0],
+            "Mean" : self.mean,
+            "Std.Dev": [self.sigma],
+            "USL": [self.usl],
+            "LSL": [self.lsl],
+            "FPY": [self.fpy],
+            "ppl": [self.pp_lower],
+            "ppu": [self.pp_upper],
+            "ppk": [self.ppk],
+        }
+        df = pd.DataFrame(data)
+        self.metrics = df.copy()
+        
     def _calc_zones(self): 
         self.zones = {
             "1" : [self.mean + 1 * (self.sigma), self.mean -1 * (self.sigma)],
@@ -202,13 +248,17 @@ class SPC:
         machineID = df["machine"].iloc[0]
         featureID = df["feature_id"].iloc[0]
 
+        hoverDataList = ["measurement_id", "value", "anomoly", "rule_violations", "note_text"]
+
         fig = px.line(
-            data_frame=df.reset_index(),
+            data_frame=df,
             x = df.index,
             y = "value",
             color_discrete_sequence=["black"], 
             markers=True, 
-            title = f"Machine: {machineID} / Feature: {featureID}"
+            title = f"Machine: {machineID} / Feature: {featureID}", 
+            hover_name="measurement_id",
+            hover_data = hoverDataList
         )
 
         # Plot Anomolies as discrete points on top of line chart. 
@@ -222,11 +272,30 @@ class SPC:
                     x = anomolies.index, 
                     y = "value", 
                     color_discrete_sequence=["crimson"],
-                    hover_data="rule_violations", 
+                    hover_data=hoverDataList,
+                    hover_name="measurement_id"
                 ).data[0]
             )
             fig.update_traces(marker = dict(size=12, line=dict(width=1)))
-                
+
+        # Overlay Note points
+        notePoints = df.query("note_text.notnull()", engine="python")
+
+        if not notePoints.empty:
+            fig.add_trace(
+                px.scatter(
+                    data_frame=notePoints, 
+                    x = notePoints.index, 
+                    y = "value", 
+                    color_discrete_sequence=["yellow"],
+                    hover_data=hoverDataList,
+                    hover_name="measurement_id"
+                ).data[0]
+            )
+            fig.update_traces(marker = dict(size=12, line=dict(width=1)))
+
+
+
         # Plot Sigma Lines
         fig.add_hline(self.mean, line_dash="dash")
         fig.add_hline(self.ucl)
@@ -241,4 +310,17 @@ class SPC:
         # Display Final Figure
         # fig.show()
         return fig
+
+if __name__ == "__main__":
+    
+    from helpers import cs50_query_to_df
+    from config import DB
+    from config import qryMeasurementSQL
+
+    df = cs50_query_to_df(qry=qryMeasurementSQL, DB=DB)
+    df = df.query("feature_id == 4.0")
+
+    test = SPC(data=df, valueColumn="value")
+    print(test.data.head)
+    print(test.usl)
 

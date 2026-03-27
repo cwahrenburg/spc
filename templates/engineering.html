@@ -1,0 +1,44 @@
+
+{% extends "layout.html" %}
+
+{% block title %}
+    Engineerin view
+{% endblock %}
+
+{% block main %}
+
+<h3>Engineering View</h3>
+
+{% for htmlFig in htmlFigList %}
+
+    {{ htmlFig|safe }}
+    
+    <div class="container mt-5">
+    <form action="/engineering" method="post">
+    <div class="row justify-content-center align-items-center">
+
+        <!-- Measurement ID field 1/6 -->
+        <div class="mb-3 col-2">
+            <input autocomplete="off" autofocus class="form-control form-control-sm" name="measurementID" placeholder="Measurement ID" type="text">
+        </div>
+
+        <!--Text field 4/6  -->
+        <div class="mb-3 col-5">
+            <input class="form-control form-control-auto" name="noteText" placeholder="Note Text" type="text">
+        </div>
+
+        <!-- Submit button (aligned right) -->
+        <div class="mb-3 col-auto">
+            <button class="btn btn-outline-primary" type="submit">Submit Note</button>
+        </div>
+    
+    </div>
+    </form>
+    </div>
+
+
+
+
+    {% endfor %}
+
+{% endblock %}

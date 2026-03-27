@@ -4,7 +4,8 @@ from flask import redirect, render_template, session
 from functools import wraps
 from cs50 import SQL
 import pandas as pd
-
+from config import qryMeasurementSQL, insertNoteSQL
+from config import DB
 
 def apology(message, code=400):
     """Render message as an apology to user."""
@@ -61,4 +62,9 @@ def cs50_query_to_df(DB: SQL, qry:str) -> pd.DataFrame:
 
     qry = DB.execute(qry)
     return pd.DataFrame.from_records(qry)
+
+
+def add_note_to_measurement(measurement_id, noteText):
+    DB.execute(insertNoteSQL, measurement_id, noteText)
+    return
 
