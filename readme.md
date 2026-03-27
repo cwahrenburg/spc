@@ -1,6 +1,5 @@
-# SPyC: 
-#### Video Demo:  <URL HERE>
-#### Simple Automated Statistical Process Control System
+# SPyC: Simple Automated Statistical Process Control System
+## Video Demo: [https://youtu.be/PxtqLKx8Gp0](https://youtu.be/PxtqLKx8Gp0)
 
 ## Background: 
 
